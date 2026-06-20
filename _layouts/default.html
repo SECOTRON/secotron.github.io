@@ -116,7 +116,10 @@
           <span><span class="brand-name">SECOTRON</span>
           <span class="brand-by">{{ site.tagline }}</span></span>
         </a>
-        <ul class="nav-links">
+        <button type="button" class="nav-toggle" id="nav-toggle" aria-label="Menu" aria-expanded="false" aria-controls="nav-links">
+          <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+        </button>
+        <ul class="nav-links" id="nav-links">
           <li><a href="{{ t.url_home | relative_url }}">{{ t.nav_home }}</a></li>
           <li><a href="{{ t.url_services | relative_url }}">{{ t.nav_services }}</a></li>
           <li><a href="{{ t.url_about | relative_url }}">{{ t.nav_about }}</a></li>
@@ -190,5 +193,6 @@
 
     <script src="{{ '/assets/js/particles.js' | relative_url }}" defer></script>
     <script src="{{ '/assets/js/font-toggle.js' | relative_url }}" defer></script>
+    <script src="{{ '/assets/js/nav.js' | relative_url }}" defer></script>
   </body>
 </html>
