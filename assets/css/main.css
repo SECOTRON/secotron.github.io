@@ -2751,11 +2751,13 @@ body.theme-light .search-panel .chip[data-type="category"] {
   color: var(--accent);
 }
 
-/* ---- Locale auto-switch splash (home language redirect only) ---- */
-html.locale-redirecting {
+/* ---- Branded splash: locale auto-switch + page navigation ---- */
+html.locale-redirecting,
+html.is-navigating {
   overflow: hidden;
 }
-html.locale-redirecting::before {
+html.locale-redirecting::before,
+html.is-navigating::before {
   content: "";
   position: fixed;
   inset: 0;
@@ -2763,6 +2765,16 @@ html.locale-redirecting::before {
   background: linear-gradient(120deg, #30638e 0%, #c29532 50%, #3e92cc 100%);
   background-size: 220% 220%;
   animation: locale-sheen 1.6s ease infinite;
+}
+/* Centred lion for normal page navigation. */
+html.is-navigating::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 10001;
+  background: url("../img/logo.png") no-repeat center / 64px;
+  filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.35));
+  animation: locale-pop 0.18s ease both;
 }
 /* Page transition that works in every browser: a dark page background kills the
    inter-page white flash, and the new page fades in on arrival. Native cross-
@@ -2777,19 +2789,11 @@ body {
   from { opacity: 0; }
   to { opacity: 1; }
 }
-@view-transition {
-  navigation: auto;
-}
-::view-transition-old(root),
-::view-transition-new(root) {
-  animation-duration: 260ms;
-}
 @media (prefers-reduced-motion: reduce) {
-  body {
+  body,
+  html.is-navigating::before,
+  html.is-navigating::after {
     animation: none;
-  }
-  @view-transition {
-    navigation: none;
   }
 }
 html.locale-redirecting::after {
