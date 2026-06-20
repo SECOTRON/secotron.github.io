@@ -2764,16 +2764,30 @@ html.locale-redirecting::before {
   background-size: 220% 220%;
   animation: locale-sheen 1.6s ease infinite;
 }
-/* Snappy native cross-document page transitions (supported browsers only;
-   others navigate instantly — no JS, no artificial delay). */
+/* Page transition that works in every browser: a dark page background kills the
+   inter-page white flash, and the new page fades in on arrival. Native cross-
+   document view transitions enhance this where supported. */
+html {
+  background-color: var(--bg-primary);
+}
+body {
+  animation: page-enter 0.22s ease both;
+}
+@keyframes page-enter {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
 @view-transition {
   navigation: auto;
 }
 ::view-transition-old(root),
 ::view-transition-new(root) {
-  animation-duration: 300ms;
+  animation-duration: 260ms;
 }
 @media (prefers-reduced-motion: reduce) {
+  body {
+    animation: none;
+  }
   @view-transition {
     navigation: none;
   }
