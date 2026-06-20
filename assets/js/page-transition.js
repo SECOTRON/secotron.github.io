@@ -33,9 +33,13 @@
 
     e.preventDefault();
     de.classList.add("is-navigating");
-    setTimeout(function () {
-      location.href = a.href;
-    }, 140);
+    // Navigate on the next painted frame (no artificial delay): the overlay then
+    // covers only the real load time, and the new page fades in on arrival.
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        location.href = a.href;
+      });
+    });
   });
 
   // Clear the overlay if the page is restored from the bfcache (back/forward).
