@@ -35,7 +35,7 @@
     de.classList.add("is-navigating");
     setTimeout(function () {
       location.href = a.href;
-    }, 260);
+    }, 140);
   });
 
   // Clear the overlay if the page is restored from the bfcache (back/forward).
