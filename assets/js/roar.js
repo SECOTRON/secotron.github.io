@@ -43,12 +43,12 @@
       if (ctx.state === "suspended") ctx.resume();
       var c = ctx;
       var t = c.currentTime;
-      var dur = 2.0;
+      var dur = 1.5;
 
       var master = c.createGain();
       master.gain.setValueAtTime(0.0001, t);
-      master.gain.exponentialRampToValueAtTime(0.95, t + 0.18);
-      master.gain.exponentialRampToValueAtTime(0.55, t + 1.1);
+      master.gain.exponentialRampToValueAtTime(0.9, t + 0.14);
+      master.gain.exponentialRampToValueAtTime(0.5, t + 0.8);
       master.gain.exponentialRampToValueAtTime(0.0001, t + dur);
       master.connect(c.destination);
 
@@ -68,16 +68,16 @@
 
       var osc = c.createOscillator();
       osc.type = "sawtooth";
-      osc.frequency.setValueAtTime(85, t);
-      osc.frequency.exponentialRampToValueAtTime(48, t + 0.45);
-      osc.frequency.exponentialRampToValueAtTime(36, t + dur);
-      // sub-octave layer for extra depth
+      osc.frequency.setValueAtTime(105, t);
+      osc.frequency.exponentialRampToValueAtTime(64, t + 0.4);
+      osc.frequency.exponentialRampToValueAtTime(46, t + dur);
+      // sub-octave layer for a little chest, kept subtle
       var sub = c.createOscillator();
       sub.type = "sine";
-      sub.frequency.setValueAtTime(45, t);
-      sub.frequency.exponentialRampToValueAtTime(26, t + dur);
+      sub.frequency.setValueAtTime(56, t);
+      sub.frequency.exponentialRampToValueAtTime(34, t + dur);
       var subg = c.createGain();
-      subg.gain.value = 0.45;
+      subg.gain.value = 0.32;
       sub.connect(subg);
       subg.connect(dist);
       var lfo = c.createOscillator();
