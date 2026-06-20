@@ -1,0 +1,41 @@
+title: "SECOTRON"
+tagline: "Consultancy · Training · Security"
+description: "SECOTRON — independent senior IT consultancy in Belgium. Solution architecture, cloud engineering, security, training and Microsoft licensing for SMEs and enterprises."
+url: "https://www.secotron.eu"
+baseurl: ""
+lang: en
+
+# Cloudflare Turnstile public site key. Empty by default; injected at build time
+# from a merged config (CI: _config.ci.yml from a GitHub Actions Variable; local:
+# _config.local.yml). The secret key lives only in the Azure Function, never here.
+turnstile_sitekey: ""
+
+# Manual bilingual setup (EN at /, NL at /nl/). No polyglot plugin — keeps the
+# GitHub Actions build deterministic. Per-page front matter sets `lang` and `alt`
+# (the counterpart-language URL used by the language switch).
+languages: ["en", "nl"]
+default_lang: "en"
+
+markdown: kramdown
+highlighter: rouge
+permalink: pretty
+
+plugins:
+  - jekyll-seo-tag
+  - jekyll-sitemap
+
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor
+  - .sass-cache
+  - .jekyll-cache
+  - README.md
+  - Makefile
+  - api
+  - infra
+  - cspell.json
+
+sass:
+  style: compressed

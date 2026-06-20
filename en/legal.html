@@ -1,0 +1,52 @@
+---
+layout: default
+lang: en
+permalink: /legal/
+alt: /nl/juridisch/
+title: "Legal & privacy"
+description: "Legal notice, privacy and cookie information for SECOTRON."
+---
+
+<section class="section">
+  <p class="eyebrow">Legal &amp; privacy</p>
+  <h1>Legal notice</h1>
+
+  <h2>Company details</h2>
+  <div class="identity">
+    <span class="org">{{ site.data.company.name }}</span>
+    <span>{{ site.data.company.street }}</span>
+    <span>{{ site.data.company.postal }} {{ site.data.company.city }}, {{ site.data.company.country }}</span>
+    <span>VAT {{ site.data.company.vat }}</span>
+    <span>D-U-N-S {{ site.data.company.duns }}</span>
+    <span><a href="mailto:{{ site.data.company.email }}">{{ site.data.company.email }}</a> · <a href="tel:{{ site.data.company.phone_link }}">{{ site.data.company.phone_display }}</a></span>
+  </div>
+
+  <h2>Privacy</h2>
+  <p class="lead">
+    SECOTRON respects your privacy and processes personal data in line with the
+    EU General Data Protection Regulation (GDPR).
+  </p>
+  <ul>
+    <li><strong>Contact form.</strong> When you use the contact form, the data you
+      submit (name, email, optional company and your message) is sent to us by
+      email to handle your request. We do not use it for anything else and do not
+      sell or share it.</li>
+    <li><strong>Email &amp; phone.</strong> If you contact us directly, we keep the
+      correspondence only as long as needed to serve you and meet legal
+      obligations.</li>
+    <li><strong>Your rights.</strong> You can request access to, correction of, or
+      deletion of your personal data at any time by emailing
+      <a href="mailto:{{ site.data.company.email }}">{{ site.data.company.email }}</a>.</li>
+  </ul>
+
+  <h2>Cookies</h2>
+  <p>
+    This website does not use tracking or advertising cookies. We store a small
+    preference in your browser's local storage to remember your chosen theme and
+    typography — it never leaves your device and is not used to identify you.
+    Privacy-friendly, cookieless analytics may be used to count anonymous page
+    views; it sets no cookies and does not track individuals.
+  </p>
+
+  <p><em>Last updated: {{ 'now' | date: "%B %Y" }}.</em></p>
+</section>

@@ -1,0 +1,58 @@
+---
+layout: default
+lang: nl
+permalink: /nl/contact/
+alt: /contact/
+title: "Contact"
+description: "Neem contact op met SECOTRON — onafhankelijke IT-consultancy in Zedelgem, België."
+---
+
+<section class="section">
+  <p class="eyebrow">Contact</p>
+  <h1>Laten we praten.</h1>
+  <p class="lead">
+    Of het nu gaat om een langetermijnpartnerschap, een project met vaste scope,
+    opleiding of licenties — vertel ons wat u wilt bereiken en we komen
+    persoonlijk bij u terug. Liever e-mail? Bereik ons rechtstreeks via
+    <a href="mailto:{{ site.data.company.email }}">{{ site.data.company.email }}</a>
+    of bel <a href="tel:{{ site.data.company.phone_link }}">{{ site.data.company.phone_display }}</a>.
+  </p>
+
+  <!-- Post JSON naar de Azure Function (Microsoft Graph sendMail). Vervang de
+       data-endpoint host en de Turnstile data-sitekey na provisioning. -->
+  <form
+    id="contact-form"
+    class="contact-form"
+    data-endpoint="https://func-secotron-www-prod-weu.azurewebsites.net/api/contact"
+    data-success="Bedankt — uw bericht is verzonden. We komen snel bij u terug."
+    data-error="Er ging iets mis. Mail ons gerust rechtstreeks via info@secotron.eu."
+  >
+    <!-- Honeypot: moet leeg blijven (verborgen voor mensen). -->
+    <input type="text" name="botcheck" class="sr-only" tabindex="-1" autocomplete="off" aria-hidden="true" />
+    <div>
+      <label for="name">Naam</label>
+      <input id="name" type="text" name="name" required autocomplete="name" />
+    </div>
+    <div>
+      <label for="email">E-mail</label>
+      <input id="email" type="email" name="email" required autocomplete="email" />
+    </div>
+    <div>
+      <label for="company">Bedrijf (optioneel)</label>
+      <input id="company" type="text" name="company" autocomplete="organization" />
+    </div>
+    <div>
+      <label for="message">Waarmee kunnen we helpen?</label>
+      <textarea id="message" name="message" rows="6" required></textarea>
+    </div>
+    <div class="cf-turnstile" data-sitekey="{{ site.turnstile_sitekey }}"></div>
+    <div>
+      <button type="submit" class="btn btn-primary">Verstuur bericht</button>
+    </div>
+    <p id="contact-status" class="form-status" role="status" aria-live="polite"></p>
+    <noscript>Schakel JavaScript in om het formulier te gebruiken, of mail naar <a href="mailto:{{ site.data.company.email }}">{{ site.data.company.email }}</a>.</noscript>
+  </form>
+</section>
+
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+<script src="{{ '/assets/js/contact.js' | relative_url }}" defer></script>

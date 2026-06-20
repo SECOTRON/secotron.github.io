@@ -1,0 +1,11 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "FUNCTIONS_WORKER_RUNTIME": "node",
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "MAIL_FROM": "info@secotron.eu",
+    "MAIL_TO": "thomas.geens@secotron.eu",
+    "TURNSTILE_SECRET": "your-cloudflare-turnstile-secret",
+    "ALLOWED_ORIGINS": "https://www.secotron.eu,https://www.secotron.be,https://www.secotron.com,http://localhost:4000"
+  }
+}

@@ -1,0 +1,22 @@
+# Single source of truth for company identity — used in footer, contact, legal,
+# and JSON-LD schema. Keep accurate (legal imprint + vendor partner records).
+name: "SECOTRON"
+legal_name: "SECOTRON"
+email: "info@secotron.eu"
+phone_display: "+32 50 89 35 35"
+phone_link: "+3250893535"
+street: "Hendrik Baekelandlaan 33"
+postal: "8211"
+city: "Zedelgem"
+region: "West Flanders"
+country: "Belgium"
+country_code: "BE"
+vat: "BE 0675.546.996"
+duns: "371430250"
+# Geo for LocalBusiness schema (Zedelgem approx.)
+lat: 51.1419
+lng: 3.1389
+# External profiles — confirm/replace the LinkedIn URL before launch.
+linkedin: "https://www.linkedin.com/company/secotron"
+blog: "https://thomas.geens.be"
+founded: "2017"

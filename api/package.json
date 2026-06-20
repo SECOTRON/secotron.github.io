@@ -1,0 +1,17 @@
+{
+  "name": "secotron-contact-api",
+  "version": "1.0.0",
+  "description": "Azure Function backend for the secotron.eu contact form (Microsoft Graph sendMail).",
+  "main": "src/functions/*.js",
+  "scripts": {
+    "start": "func start"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@azure/functions": "^4.5.0",
+    "@azure/identity": "^4.4.1",
+    "applicationinsights": "^3.4.0"
+  }
+}
