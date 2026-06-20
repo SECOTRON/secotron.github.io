@@ -2732,13 +2732,19 @@ html.locale-redirecting::before {
   background-size: 220% 220%;
   animation: locale-sheen 1.6s ease infinite;
 }
-/* Soft page-enter fade on every load (no overlay — navigation stays instant). */
-body {
-  animation: page-enter 0.12s ease both;
+/* Snappy native cross-document page transitions (supported browsers only;
+   others navigate instantly — no JS, no artificial delay). */
+@view-transition {
+  navigation: auto;
 }
-@keyframes page-enter {
-  from { opacity: 0; }
-  to { opacity: 1; }
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 120ms;
+}
+@media (prefers-reduced-motion: reduce) {
+  @view-transition {
+    navigation: none;
+  }
 }
 html.locale-redirecting::after {
   content: attr(data-locale-msg);
