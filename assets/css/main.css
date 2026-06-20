@@ -2413,6 +2413,20 @@ body.theme-light .search-panel .chip[data-type="category"] {
   max-width: 60ch;
   line-height: 1.7;
 }
+
+/* In-content links (paragraphs, lists) — brand colour, no default blue/purple. */
+.main-content a:not(.btn),
+.main-content a:not(.btn):visited {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
+  transition: color 0.15s ease;
+}
+.main-content a:not(.btn):hover,
+.main-content a:not(.btn):focus-visible {
+  color: var(--brand-gold);
+}
 .section h2 {
   font-size: clamp(1.6rem, 3vw, 2.2rem);
 }
