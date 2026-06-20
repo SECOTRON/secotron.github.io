@@ -26,6 +26,43 @@
     <meta name="twitter:card" content="summary" />
 
     <link rel="stylesheet" href="{{ '/assets/css/main.css' | relative_url }}" />
+    <!-- Locale auto-switch: browser-language detection (home only), with a branded
+         splash instead of a flash. Respects an explicit EN/NL choice (localStorage). -->
+    <script>
+      (function () {
+        try {
+          var de = document.documentElement;
+          // Smooth fade-in when we arrived here via an auto-redirect.
+          if (location.hash === "#auto") {
+            de.classList.add("locale-arrived");
+            history.replaceState(null, "", location.pathname + location.search);
+          }
+          // Remember an explicit language choice (event delegation works pre-body).
+          document.addEventListener("click", function (e) {
+            var a = e.target.closest && e.target.closest(".lang-switch a");
+            if (a) {
+              try { localStorage.setItem("lang", a.getAttribute("hreflang") || ""); } catch (_) {}
+            }
+          });
+          var stored = localStorage.getItem("lang");
+          var pageLang = "{{ lang }}";
+          var alt = "{{ page.alt | default: '' }}";
+          var isHome = {% if page.home %}true{% else %}false{% endif %};
+          if (stored || !isHome || !alt) return;
+          if (sessionStorage.getItem("localeChecked")) return;
+          sessionStorage.setItem("localeChecked", "1");
+          var b = (navigator.language || navigator.userLanguage || "en").toLowerCase();
+          var want = b.indexOf("nl") === 0 ? "nl" : "en";
+          if (want === pageLang) return;
+          de.setAttribute(
+            "data-locale-msg",
+            want === "nl" ? "Even naar het Nederlands…" : "Switching to English…",
+          );
+          de.classList.add("locale-redirecting");
+          setTimeout(function () { location.replace(alt + "#auto"); }, 650);
+        } catch (e) {}
+      })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link

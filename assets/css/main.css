@@ -2641,3 +2641,59 @@ body.theme-light .search-panel .chip[data-type="category"] {
 .footer-cols a:hover {
   color: var(--accent);
 }
+
+/* ---- Locale auto-switch: branded splash (no white flash) ---- */
+html.locale-redirecting {
+  overflow: hidden;
+}
+html.locale-redirecting::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: linear-gradient(120deg, #30638e 0%, #c29532 50%, #3e92cc 100%);
+  background-size: 220% 220%;
+  animation: locale-sheen 1.6s ease infinite;
+}
+html.locale-redirecting::after {
+  content: attr(data-locale-msg);
+  position: fixed;
+  inset: 0;
+  z-index: 10001;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 5rem;
+  background: url("../img/logo.png") no-repeat center calc(50% - 2.4rem) / 72px;
+  filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.35));
+  color: #fff;
+  font-family: var(--font-heading, system-ui, sans-serif);
+  font-weight: 700;
+  font-size: clamp(1.05rem, 2.6vw, 1.45rem);
+  letter-spacing: 0.01em;
+  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.45);
+  animation: locale-pop 0.5s ease both;
+}
+html.locale-arrived body {
+  animation: locale-fade-in 0.5s ease both;
+}
+@keyframes locale-sheen {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+@keyframes locale-pop {
+  from { opacity: 0; transform: translateY(10px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes locale-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html.locale-redirecting::before,
+  html.locale-redirecting::after,
+  html.locale-arrived body {
+    animation: none;
+  }
+}
