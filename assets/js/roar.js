@@ -15,7 +15,7 @@
     if (!AC) return function () {};
     var ctx;
     function noiseBuffer(c) {
-      var len = Math.floor(c.sampleRate * 1.2);
+      var len = Math.floor(c.sampleRate * 2.2);
       var buf = c.createBuffer(1, len, c.sampleRate);
       var d = buf.getChannelData(0);
       var last = 0;
@@ -43,12 +43,12 @@
       if (ctx.state === "suspended") ctx.resume();
       var c = ctx;
       var t = c.currentTime;
-      var dur = 1.1;
+      var dur = 2.0;
 
       var master = c.createGain();
       master.gain.setValueAtTime(0.0001, t);
-      master.gain.exponentialRampToValueAtTime(0.85, t + 0.12);
-      master.gain.exponentialRampToValueAtTime(0.4, t + 0.6);
+      master.gain.exponentialRampToValueAtTime(0.95, t + 0.18);
+      master.gain.exponentialRampToValueAtTime(0.55, t + 1.1);
       master.gain.exponentialRampToValueAtTime(0.0001, t + dur);
       master.connect(c.destination);
 
@@ -59,22 +59,31 @@
       src.buffer = noiseBuffer(c);
       var lp = c.createBiquadFilter();
       lp.type = "lowpass";
-      lp.Q.value = 6;
-      lp.frequency.setValueAtTime(300, t);
-      lp.frequency.linearRampToValueAtTime(1500, t + 0.25);
-      lp.frequency.linearRampToValueAtTime(500, t + dur);
+      lp.Q.value = 7;
+      lp.frequency.setValueAtTime(180, t);
+      lp.frequency.linearRampToValueAtTime(950, t + 0.35);
+      lp.frequency.linearRampToValueAtTime(280, t + dur);
       src.connect(lp);
       lp.connect(dist);
 
       var osc = c.createOscillator();
       osc.type = "sawtooth";
-      osc.frequency.setValueAtTime(115, t);
-      osc.frequency.exponentialRampToValueAtTime(72, t + 0.3);
-      osc.frequency.exponentialRampToValueAtTime(54, t + dur);
+      osc.frequency.setValueAtTime(85, t);
+      osc.frequency.exponentialRampToValueAtTime(48, t + 0.45);
+      osc.frequency.exponentialRampToValueAtTime(36, t + dur);
+      // sub-octave layer for extra depth
+      var sub = c.createOscillator();
+      sub.type = "sine";
+      sub.frequency.setValueAtTime(45, t);
+      sub.frequency.exponentialRampToValueAtTime(26, t + dur);
+      var subg = c.createGain();
+      subg.gain.value = 0.45;
+      sub.connect(subg);
+      subg.connect(dist);
       var lfo = c.createOscillator();
-      lfo.frequency.value = 24;
+      lfo.frequency.value = 18;
       var lg = c.createGain();
-      lg.gain.value = 9;
+      lg.gain.value = 7;
       lfo.connect(lg);
       lg.connect(osc.frequency);
       var og = c.createGain();
@@ -84,9 +93,11 @@
 
       src.start(t);
       osc.start(t);
+      sub.start(t);
       lfo.start(t);
       src.stop(t + dur);
       osc.stop(t + dur);
+      sub.stop(t + dur);
       lfo.stop(t + dur);
     };
   }

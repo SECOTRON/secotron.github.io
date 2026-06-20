@@ -2771,7 +2771,7 @@ html.locale-redirecting::before {
 }
 ::view-transition-old(root),
 ::view-transition-new(root) {
-  animation-duration: 120ms;
+  animation-duration: 300ms;
 }
 @media (prefers-reduced-motion: reduce) {
   @view-transition {
