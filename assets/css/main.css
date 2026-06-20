@@ -2642,11 +2642,13 @@ body.theme-light .search-panel .chip[data-type="category"] {
   color: var(--accent);
 }
 
-/* ---- Locale auto-switch: branded splash (no white flash) ---- */
-html.locale-redirecting {
+/* ---- Branded splash: locale auto-switch + page transitions ---- */
+html.locale-redirecting,
+html.is-navigating {
   overflow: hidden;
 }
-html.locale-redirecting::before {
+html.locale-redirecting::before,
+html.is-navigating::before {
   content: "";
   position: fixed;
   inset: 0;
@@ -2654,6 +2656,24 @@ html.locale-redirecting::before {
   background: linear-gradient(120deg, #30638e 0%, #c29532 50%, #3e92cc 100%);
   background-size: 220% 220%;
   animation: locale-sheen 1.6s ease infinite;
+}
+/* Lighter, faster variant for normal navigation: centred lion, no text. */
+html.is-navigating::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 10001;
+  background: url("../img/logo.png") no-repeat center / 64px;
+  filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.35));
+  animation: locale-pop 0.3s ease both;
+}
+/* Soft page-enter fade on every load. */
+body {
+  animation: page-enter 0.35s ease both;
+}
+@keyframes page-enter {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 html.locale-redirecting::after {
   content: attr(data-locale-msg);
@@ -2693,7 +2713,10 @@ html.locale-arrived body {
 @media (prefers-reduced-motion: reduce) {
   html.locale-redirecting::before,
   html.locale-redirecting::after,
-  html.locale-arrived body {
+  html.is-navigating::before,
+  html.is-navigating::after,
+  html.locale-arrived body,
+  body {
     animation: none;
   }
 }
