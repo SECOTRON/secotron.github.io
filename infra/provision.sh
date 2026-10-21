@@ -21,7 +21,7 @@ LOCATION="westeurope"
 # Pin to the Sponsorship subscription in the SECOTRON tenant (5e86a914…), where
 # the secotron.eu mailboxes live — NOT the same-named sub in the geens.be tenant.
 # Managed-identity Graph sendMail only works when compute + mailbox share a tenant.
-SUBSCRIPTION_ID="1fa85a0e-0ae3-40fa-8537-adeb4499f8bf"
+SUBSCRIPTION_ID="c7ffc8e9-53ee-485d-8440-558d0a70d32c"
 
 RG="rg-${WORKLOAD}-${ENVIRONMENT}-${REGION_ABBR}"
 FUNCAPP="func-${WORKLOAD}-${ENVIRONMENT}-${REGION_ABBR}"
