@@ -12,6 +12,16 @@ make run       # serve at http://localhost:4000 with livereload
 make build     # production build into _site/
 ```
 
+## Tests
+
+```sh
+cd api && npm test               # contact Function + form script (no Azure needed)
+bash infra/test/provision.test.sh # provision.sh against a fake az
+```
+
+CI (`.github/workflows/test.yml`) runs these plus a Jekyll build and JSON-LD
+check on every PR, and uploads the built site as the `site` artifact.
+
 ## Structure
 
 - `en/` — English pages (served at `/`).
