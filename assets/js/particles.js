@@ -4,6 +4,12 @@
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
   
+  const LINK_DIST = 150;
+  const LINK_DIST2 = LINK_DIST * LINK_DIST;
+  const SMALL_MAX = 90; // particle cap on narrow viewports
+  const reduceMotion = !!(window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+
   let particles = [];
   let animationFrameId;
   let colors = computeColors();
@@ -44,6 +50,7 @@
   window.addEventListener('resize', () => {
     resizeCanvas();
     initParticles();
+    if (reduceMotion) frame(false);
   });
   
   class Particle {
@@ -78,41 +85,51 @@
     const area = canvas.width * canvas.height;
     let particleCount = Math.floor(area / vis.divisor);
     if(typeof vis.max === 'number') particleCount = Math.min(particleCount, vis.max);
+    // Link pass is O(n²): keep phones/tablets light.
+    if (window.innerWidth <= 768) particleCount = Math.min(particleCount, SMALL_MAX);
     for (let i = 0; i < particleCount; i++) {
       particles.push(new Particle());
     }
   }
-  
-  function animate() {
+
+  function frame(move) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    particles.forEach(p => { p.update(); p.draw(); });
+    particles.forEach(p => { if (move) p.update(); p.draw(); });
     for (let i = 0; i < particles.length; i++) {
       for (let j = i + 1; j < particles.length; j++) {
         const p1 = particles[i];
         const p2 = particles[j];
         const dx = p1.x - p2.x;
+        if (dx > LINK_DIST || dx < -LINK_DIST) continue;
         const dy = p1.y - p2.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        if (distance < 150) {
-          ctx.beginPath();
-          ctx.moveTo(p1.x, p1.y);
-          ctx.lineTo(p2.x, p2.y);
-          ctx.strokeStyle = colors.link(Math.min(0.9, 0.16 * (1 - distance / 150) * vis.linkMul));
-          ctx.lineWidth = 1;
-          ctx.stroke();
-        }
+        if (dy > LINK_DIST || dy < -LINK_DIST) continue;
+        const d2 = dx * dx + dy * dy;
+        if (d2 >= LINK_DIST2) continue;
+        const distance = Math.sqrt(d2);
+        ctx.beginPath();
+        ctx.moveTo(p1.x, p1.y);
+        ctx.lineTo(p2.x, p2.y);
+        ctx.strokeStyle = colors.link(Math.min(0.9, 0.16 * (1 - distance / LINK_DIST) * vis.linkMul));
+        ctx.lineWidth = 1;
+        ctx.stroke();
       }
     }
+  }
+
+  function animate() {
+    frame(true);
     animationFrameId = requestAnimationFrame(animate);
   }
-  
+
   initParticles();
-  animate();
+  // Reduced motion: draw one static frame instead of animating.
+  if (reduceMotion) frame(false); else animate();
 
   // Recompute colors on theme changes
   document.addEventListener('themechange', function(){
     colors = computeColors();
     vis = computeVisibility();
     initParticles();
+    if (reduceMotion) frame(false);
   });
 })();

@@ -32,7 +32,9 @@ STORAGE="stsecotronwwwprod${REGION_ABBR}"   # stsecotronwwwprodweu (20 chars)
 MAIL_FROM="info@secotron.eu"
 MAIL_TO="thomas.geens@secotron.eu"
 ALLOWED_ORIGINS="https://www.secotron.eu,https://www.secotron.be,https://www.secotron.com,https://secotron.github.io,http://localhost:4000"
-TURNSTILE_SECRET="${TURNSTILE_SECRET:-REPLACE_ME}"   # export before running, or edit
+# Export TURNSTILE_SECRET before running to (re)set it. When unset, the existing
+# app setting is left untouched — re-running never clobbers the live secret.
+TURNSTILE_SECRET="${TURNSTILE_SECRET:-}"
 
 GRAPH_APP_ID="00000003-0000-0000-c000-000000000000"  # Microsoft Graph
 MAILSEND_ROLE_ID="b633e1c5-b582-4048-a93e-9f11b44c7e96" # Graph app role: Mail.Send
@@ -67,11 +69,25 @@ az functionapp create -n "$FUNCAPP" -g "$RG" \
 
 # ---- App settings ------------------------------------------------------------
 echo "==> App settings"
+SETTINGS=(
+  MAIL_FROM="$MAIL_FROM"
+  MAIL_TO="$MAIL_TO"
+  ALLOWED_ORIGINS="$ALLOWED_ORIGINS"
+)
+if [[ -n "$TURNSTILE_SECRET" ]]; then
+  SETTINGS+=(TURNSTILE_SECRET="$TURNSTILE_SECRET")
+else
+  EXISTING=$(az functionapp config appsettings list -n "$FUNCAPP" -g "$RG" \
+    --query "[?name=='TURNSTILE_SECRET'].name" -o tsv)
+  if [[ -z "$EXISTING" ]]; then
+    echo "   WARNING: TURNSTILE_SECRET not exported and not set on the app —"
+    echo "            the contact form will reject every submission until it is."
+  else
+    echo "   TURNSTILE_SECRET not exported — keeping the existing app setting."
+  fi
+fi
 az functionapp config appsettings set -n "$FUNCAPP" -g "$RG" --settings \
-  MAIL_FROM="$MAIL_FROM" \
-  MAIL_TO="$MAIL_TO" \
-  ALLOWED_ORIGINS="$ALLOWED_ORIGINS" \
-  TURNSTILE_SECRET="$TURNSTILE_SECRET" -o none
+  "${SETTINGS[@]}" -o none
 
 # ---- CORS (browser origins allowed to call the function) --------------------
 echo "==> CORS"

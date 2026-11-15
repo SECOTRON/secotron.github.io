@@ -60,17 +60,66 @@ function trackOutcome(outcome, reason, durationMs, extra) {
 }
 
 // ---- Anti-spam helpers ------------------------------------------------------
+// Best-effort, per-instance limiter (resets on cold start / scale-out).
+// Turnstile is the real gate; this just blunts bursts from one client.
 const hits = new Map();
 const RATE_WINDOW_MS = 10 * 60 * 1000;
 const RATE_MAX = 5;
+const RATE_MAX_KEYS = 5000; // sweep expired entries past this many IPs
 
 function rateCount(ip) {
   const now = Date.now();
+  if (hits.size > RATE_MAX_KEYS) {
+    for (const [k, ts] of hits) {
+      if (!ts.length || now - ts[ts.length - 1] >= RATE_WINDOW_MS) hits.delete(k);
+    }
+  }
   const arr = (hits.get(ip) || []).filter((t) => now - t < RATE_WINDOW_MS);
   arr.push(now);
   hits.set(ip, arr);
   return arr.length;
 }
+
+// Strip a trailing ":port" (Azure front ends add it), incl. "[v6]:port" form.
+function stripPort(addr) {
+  const s = String(addr || "").trim();
+  if (!s) return "";
+  const v6 = /^\[([^\]]+)\](?::\d+)?$/.exec(s);
+  if (v6) return v6[1];
+  // Exactly one colon → IPv4:port. More colons → bare IPv6, leave as is.
+  if ((s.match(/:/g) || []).length === 1) return s.split(":")[0];
+  return s;
+}
+
+// Client IP as seen by the Azure front end. The FIRST X-Forwarded-For entry is
+// client-controlled (spoofable), so prefer the platform headers, then the LAST
+// X-Forwarded-For entry (the one the Azure front end appended).
+function clientIp(h) {
+  const direct = h.get("x-azure-clientip") || h.get("client-ip");
+  if (direct) return stripPort(direct) || "unknown";
+  const xff = (h.get("x-forwarded-for") || "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  return stripPort(xff[xff.length - 1]) || "unknown";
+}
+
+// Hostnames a valid Turnstile solve may come from. TURNSTILE_HOSTNAMES
+// (comma-separated) overrides; default derives from ALLOWED_ORIGINS.
+// Empty list → check skipped.
+const TURNSTILE_HOSTNAMES = (
+  process.env.TURNSTILE_HOSTNAMES
+    ? process.env.TURNSTILE_HOSTNAMES.split(",")
+    : ALLOWED_ORIGINS.map((o) => {
+        try {
+          return new URL(o).hostname;
+        } catch {
+          return "";
+        }
+      })
+)
+  .map((s) => s.trim().toLowerCase())
+  .filter(Boolean);
 
 function clean(v, max) {
   return String(v == null ? "" : v)
@@ -122,7 +171,7 @@ async function handler(request, context) {
 
   const h = request.headers;
   const origin = h.get("origin") || "";
-  const ip = (h.get("x-forwarded-for") || "").split(",")[0].trim() || "unknown";
+  const ip = clientIp(h);
   log("received", {
     method: request.method,
     origin,
@@ -173,6 +222,14 @@ async function handler(request, context) {
     warn("captcha_failed", { codes: turnstile.codes });
     return finish(400, "rejected", "captcha_failed", {
       codes: turnstile.codes.join(","),
+    });
+  }
+  const solvedOn = String(turnstile.hostname || "").toLowerCase();
+  if (TURNSTILE_HOSTNAMES.length && !TURNSTILE_HOSTNAMES.includes(solvedOn)) {
+    warn("captcha_hostname_mismatch", { hostname: solvedOn });
+    return finish(400, "rejected", "captcha_failed", {
+      codes: "hostname-mismatch",
+      hostname: solvedOn,
     });
   }
 
