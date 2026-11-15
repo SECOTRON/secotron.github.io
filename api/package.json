@@ -4,7 +4,8 @@
   "description": "Azure Function backend for the secotron.eu contact form (Microsoft Graph sendMail).",
   "main": "src/functions/*.js",
   "scripts": {
-    "start": "func start"
+    "start": "func start",
+    "test": "node --test \"test/*.test.js\""
   },
   "engines": {
     "node": ">=20"

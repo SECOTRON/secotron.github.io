@@ -1,0 +1,71 @@
+name: Tests
+
+on:
+  pull_request:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  api:
+    name: API + form script
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+      - run: npm ci
+      - run: npm test
+
+  infra:
+    name: Provision script
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: bash -n infra/provision.sh
+      - run: bash infra/test/provision.test.sh
+
+  site:
+    name: Jekyll build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+      - name: Build
+        run: bundle exec jekyll build
+        env:
+          JEKYLL_ENV: production
+      - name: Validate JSON-LD
+        run: |
+          python3 - <<'EOF'
+          import json, pathlib, re, sys
+          bad = 0
+          pages = list(pathlib.Path("_site").rglob("*.html"))
+          for p in pages:
+              for block in re.findall(r'<script type="application/ld\+json">(.*?)</script>', p.read_text(encoding="utf-8"), re.S):
+                  try:
+                      json.loads(block)
+                  except ValueError as e:
+                      print(f"::error file={p}::invalid JSON-LD: {e}")
+                      bad += 1
+          print(f"checked {len(pages)} pages")
+          sys.exit(1 if bad else 0)
+          EOF
+      - name: Upload built site (for local preview)
+        uses: actions/upload-artifact@v4
+        with:
+          name: site
+          path: _site
+          retention-days: 7
