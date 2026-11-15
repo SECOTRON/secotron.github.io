@@ -36,6 +36,8 @@ exclude:
   - api
   - infra
   - cspell.json
+  - Brewfile
+  - "*.code-workspace"
 
 sass:
   style: compressed
