@@ -75,6 +75,13 @@ Note the printed **Function URL** and **MI appId**.
 In `en/contact.html` and `nl/contact.html`, set `data-endpoint` to the printed
 Function URL (`https://<app>.azurewebsites.net/api/contact`). Rebuild the site.
 
+If the Function host name changes, also update `connect-src` in the CSP
+`<meta>` in `_layouts/default.html` (it is pinned to the exact host).
+
+The Function only accepts Turnstile solves whose hostname matches
+`ALLOWED_ORIGINS`. Set the optional `TURNSTILE_HOSTNAMES` app setting
+(comma-separated) to override that list.
+
 ### 4. Lock Mail.Send to info@ only (Exchange Online PowerShell)
 Run in Exchange Online PowerShell (`Connect-ExchangeOnline`), using the **MI appId**
 from step 2:

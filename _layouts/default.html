@@ -73,7 +73,7 @@
     <meta name="theme-color" content="#c29532" />
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://challenges.cloudflare.com https://*.azurewebsites.net; frame-src https://challenges.cloudflare.com; form-action 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'self'; upgrade-insecure-requests"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://challenges.cloudflare.com https://func-secotron-www-prod-weu.azurewebsites.net; frame-src https://challenges.cloudflare.com; form-action 'self'; object-src 'none'; base-uri 'self'; upgrade-insecure-requests"
     />
     {%- seo -%}
 
@@ -82,26 +82,26 @@
     {
       "@context": "https://schema.org",
       "@type": "ProfessionalService",
-      "name": "{{ c.name }}",
-      "description": "{{ site.description }}",
-      "url": "{{ site.url }}",
-      "logo": "{{ '/assets/img/logo.png' | absolute_url }}",
-      "image": "{{ '/assets/img/logo.png' | absolute_url }}",
-      "email": "{{ c.email }}",
-      "telephone": "{{ c.phone_display }}",
-      "vatID": "{{ c.vat }}",
-      "foundingDate": "{{ c.founded }}",
+      "name": {{ c.name | jsonify }},
+      "description": {{ site.description | jsonify }},
+      "url": {{ site.url | jsonify }},
+      "logo": {{ '/assets/img/logo.png' | absolute_url | jsonify }},
+      "image": {{ '/assets/img/logo.png' | absolute_url | jsonify }},
+      "email": {{ c.email | jsonify }},
+      "telephone": {{ c.phone_display | jsonify }},
+      "vatID": {{ c.vat | jsonify }},
+      "foundingDate": {{ c.founded | jsonify }},
       "areaServed": "BE",
-      "sameAs": ["{{ c.linkedin }}"],
+      "sameAs": [{{ c.linkedin | jsonify }}],
       "address": {
         "@type": "PostalAddress",
-        "streetAddress": "{{ c.street }}",
-        "postalCode": "{{ c.postal }}",
-        "addressLocality": "{{ c.city }}",
-        "addressRegion": "{{ c.region }}",
-        "addressCountry": "{{ c.country_code }}"
+        "streetAddress": {{ c.street | jsonify }},
+        "postalCode": {{ c.postal | jsonify }},
+        "addressLocality": {{ c.city | jsonify }},
+        "addressRegion": {{ c.region | jsonify }},
+        "addressCountry": {{ c.country_code | jsonify }}
       },
-      "geo": { "@type": "GeoCoordinates", "latitude": {{ c.lat }}, "longitude": {{ c.lng }} }
+      "geo": { "@type": "GeoCoordinates", "latitude": {{ c.lat | jsonify }}, "longitude": {{ c.lng | jsonify }} }
     }
     </script>
   </head>
