@@ -144,16 +144,24 @@ test("rate limit cannot be bypassed by spoofing the first X-Forwarded-For entry"
   assert.deepEqual(codes, [400, 400, 400, 400, 400, 429]);
 });
 
-test("client IP: x-azure-clientip wins, then client-ip, then last XFF entry", async () => {
+test("client IP: rightmost public XFF entry wins, then public platform headers", async () => {
   const h = load();
-  await h(req({ ...ORIGIN, "x-azure-clientip": "192.0.2.1", "client-ip": "192.0.2.2:1", "x-forwarded-for": "192.0.2.3" }, GOOD), ctx);
-  assert.equal(remoteIp(), "192.0.2.1");
-  calls = [];
-  await h(req({ ...ORIGIN, "client-ip": "192.0.2.4:443" }, GOOD), ctx);
-  assert.equal(remoteIp(), "192.0.2.4");
-  calls = [];
-  await h(req({ ...ORIGIN, "x-forwarded-for": "6.6.6.6, 192.0.2.5:80" }, GOOD), ctx);
-  assert.equal(remoteIp(), "192.0.2.5");
+  const ip = async (headers) => {
+    calls = [];
+    await h(req({ ...ORIGIN, ...headers }, GOOD), ctx);
+    return remoteIp();
+  };
+  // Azure Linux Consumption: CLIENT-IP is an internal front end (regression).
+  assert.equal(await ip({ "client-ip": "10.0.32.24:5555", "x-forwarded-for": "192.0.2.3:61234" }), "192.0.2.3");
+  // Spoofed left entry ignored; Azure-internal hop on the right skipped.
+  assert.equal(await ip({ "x-forwarded-for": "6.6.6.6, 192.0.2.5:80, 10.0.32.24" }), "192.0.2.5");
+  // No usable XFF → platform headers, private ones skipped.
+  assert.equal(await ip({ "x-client-ip": "192.0.2.6", "client-ip": "192.0.2.7:1" }), "192.0.2.6");
+  assert.equal(await ip({ "client-ip": "10.0.32.24:1", "x-azure-clientip": "192.0.2.8" }), "192.0.2.8");
+  assert.equal(await ip({ "client-ip": "192.0.2.4:443" }), "192.0.2.4");
+  // Only private addresses → still return one (rate limiting needs a key).
+  assert.equal(await ip({ "client-ip": "10.0.32.24:1" }), "10.0.32.24");
+  assert.equal(await ip({ "x-forwarded-for": "172.16.0.1, 100.64.1.1, ::ffff:192.168.1.1" }), "::ffff:192.168.1.1");
 });
 
 test("client IP: IPv6 with and without port", async () => {

@@ -91,17 +91,41 @@ function stripPort(addr) {
   return s;
 }
 
-// Client IP as seen by the Azure front end. The FIRST X-Forwarded-For entry is
-// client-controlled (spoofable), so prefer the platform headers, then the LAST
-// X-Forwarded-For entry (the one the Azure front end appended).
-function clientIp(h) {
-  const direct = h.get("x-azure-clientip") || h.get("client-ip");
-  if (direct) return stripPort(direct) || "unknown";
-  const xff = (h.get("x-forwarded-for") || "")
+// Private / internal ranges. Azure's front ends show up as e.g. 10.0.32.24 in
+// CLIENT-IP on Linux Consumption, so such addresses are never the visitor.
+function isPrivateIp(ip) {
+  const s = String(ip || "").toLowerCase().replace(/^::ffff:/, "");
+  const m = /^(\d+)\.(\d+)\.\d+\.\d+$/.exec(s);
+  if (m) {
+    const [a, b] = [Number(m[1]), Number(m[2])];
+    return (
+      a === 10 || a === 127 || a === 0 ||
+      (a === 172 && b >= 16 && b <= 31) ||
+      (a === 192 && b === 168) ||
+      (a === 169 && b === 254) ||
+      (a === 100 && b >= 64 && b <= 127) // CGNAT, used inside Azure
+    );
+  }
+  return s === "::1" || /^f[cd]/.test(s) || /^fe[89ab]/.test(s);
+}
+
+const xffList = (h) =>
+  (h.get("x-forwarded-for") || "")
     .split(",")
-    .map((s) => s.trim())
+    .map((s) => stripPort(s))
     .filter(Boolean);
-  return stripPort(xff[xff.length - 1]) || "unknown";
+
+// Visitor IP. Left-hand X-Forwarded-For entries are client-controlled
+// (spoofable), so take the RIGHTMOST public XFF entry (appended by the Azure
+// front end), then public platform headers. Private addresses (Azure-internal
+// hops) are skipped; if nothing public is found, fall back to the first value.
+function clientIp(h) {
+  const xff = xffList(h).reverse();
+  const platform = ["x-client-ip", "client-ip", "x-azure-clientip"]
+    .map((k) => stripPort(h.get(k)))
+    .filter(Boolean);
+  const all = [...xff, ...platform];
+  return all.find((ip) => !isPrivateIp(ip)) || all[0] || "unknown";
 }
 
 // Hostnames a valid Turnstile solve may come from. TURNSTILE_HOSTNAMES
@@ -176,6 +200,13 @@ async function handler(request, context) {
     method: request.method,
     origin,
     ip,
+    // Raw IP headers, to verify clientIp() picks the right one in Azure.
+    ipHeaders: {
+      xff: h.get("x-forwarded-for") || "",
+      xClientIp: h.get("x-client-ip") || "",
+      clientIp: h.get("client-ip") || "",
+      xAzureClientIp: h.get("x-azure-clientip") || "",
+    },
     referer: h.get("referer") || "",
     userAgent: (h.get("user-agent") || "").slice(0, 200),
     contentLength: h.get("content-length") || "",
